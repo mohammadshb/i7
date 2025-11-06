@@ -1309,7 +1309,7 @@ Citizen.CreateThread(function()
     local lastUpdate = 0
     
     while true do
-        Citizen.Wait(0) -- تحقق كل ثانية
+        Citizen.Wait(5000) -- تحقق كل ثانية
         
         if _G.clientMenuShowing and menuInitialized then
             local now = GetGameTimer()
