@@ -443,7 +443,7 @@
         </div>
 
         <div style="margin-top:0.5vh; margin-left: 1.75vh; width: 90%; background: rgba(0, 0, 0); border-radius: 0.4vh; padding:0.8vh 0.9vh; font-size:1.1vh; color:#A0A0A0; display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#ffffffff; font-weight:500;">Beta 0.1 [By : S H B]</span>
+          <span style="color:#ffffffff; font-weight:500;">Beta 1.5 [By : S H B]</span>
           <span style="color:#A0A0A0; font-weight:500;">({selectableMenu.length ? counterCurrent() : 0}/{selectableMenu.length})</span>
         </div>
     </div>
