@@ -10,7 +10,7 @@
 
     let itemRefs: HTMLElement[] = [];
     let position: string = 'left';
-    let banner: string = 'https://www.raed.net/img?id=1455844';
+    let banner: string = 'https://www.raed.net/img?id=1461014';
   
     let wrapperEl: HTMLElement;
     let listEl: HTMLElement;
