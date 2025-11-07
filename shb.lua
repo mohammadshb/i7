@@ -2870,17 +2870,79 @@ Citizen.CreateThread(function()
 end)
 
 -- ======= تخطي الحماية =======
-CreateThread(function()
-    for i = 0, GetNumResources() - 1 do
-        local v = GetResourceByFindIndex(i)
+local blockedResources = {}
+local lastCheck = 0
+local minDelay, maxDelay = 8000, 15000
 
-        if v and GetResourceState(v) == "started" then
-            if GetResourceMetadata(v, "ac", 0) == "fg" then
-                while true do
-                    MachoResourceStop(v)
-                    Wait(0)
+-- 1. منع إيفنتات Eagle
+AddEventHandler('__cfx_internal:serverTrigger', function(resource, eventName, ...)
+    if eventName == 'EagleCore:Server:TriggerCallback' then
+        print("[BLOCKED] Eagle AC event: " .. eventName)
+        CancelEvent()
+        return
+    end
+end)
+
+-- 2. منع الريسورس بشكل آمن
+CreateThread(function()
+    while true do
+        local currentTime = GetGameTimer()
+        
+        if currentTime - lastCheck > math.random(minDelay, maxDelay) then
+            lastCheck = currentTime
+            
+            -- Eagle AC
+            if GetResourceState("EC_AC") == "started" and not blockedResources["EC_AC"] then
+                blockedResources["EC_AC"] = true
+                MachoResourceStop("EC_AC")
+                print("Eagle AC Stopped")
+            end
+            
+            if GetResourceState("EC-PANEL") == "started" and not blockedResources["EC-PANEL"] then
+                blockedResources["EC-PANEL"] = true
+                MachoResourceStop("EC-PANEL")
+                print("Eagle Panel Stopped")
+            end
+            
+            -- FiveGuard Detection (بدون while true)
+            for i = 0, GetNumResources() - 1 do
+                local resource = GetResourceByFindIndex(i)
+                if resource and GetResourceState(resource) == "started" then
+                    if GetResourceMetadata(resource, "ac", 0) == "fg" and not blockedResources[resource] then
+                        blockedResources[resource] = true
+                        MachoResourceStop(resource)
+                        print("FiveGuard Stopped: " .. resource)
+                        break
+                    end
                 end
             end
+            
+            -- Electron Detection
+            local manifest = LoadResourceFile("electron", "fxmanifest.lua")
+            if manifest and not blockedResources["electron"] then
+                if string.find(string.lower(manifest), "electron") then
+                    blockedResources["electron"] = true
+                    MachoResourceStop("electron")
+                    print("Electron AC Stopped")
+                end
+            end
+        end
+        
+        Citizen.Wait(1000)
+    end
+end)
+
+-- 3. منع إعادة تشغيل الريسورس
+AddEventHandler("onResourceStart", function(resourceName)
+    Citizen.Wait(2000)
+    
+    local acResources = {"EC_AC", "EC-PANEL", "electron"}
+    
+    for _, acResource in ipairs(acResources) do
+        if resourceName == acResource and not blockedResources[resourceName] then
+            blockedResources[resourceName] = true
+            MachoResourceStop(resourceName)
+            print("AC Restart Blocked: " .. resourceName)
         end
     end
 end)
